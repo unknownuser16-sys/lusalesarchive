@@ -1,0 +1,35 @@
+<body>
+<h1>lusale's Archive</h1>
+
+<p>
+An indeoendent archive of books, ideas and unfinished thoughts.
+</p>
+
+<p>
+This site exists quietly.
+It is not optimized for trends, but for meaning.
+</P>
+
+<p>
+Start here: href="books.html">Read the book</a>
+</p>
+<!DOCTYPE html>
+html 1ang="en">
+<head>
+     <meta charset="UTF-8">
+     <title>Thiza lusale</title>
+     <link rel="stylesheet"
+href="style.css">
+</head>
+<body>
+    <div class="container">
+         <h1>Thiza lusale<h1>
+         <p>writer. Thinker. Archivist of unfinished truths. </p>
+        <p>
+             <a href="books.html">Books</a> |
+             <a href="about.html">About</a> |
+href="contact.html">contact</a>
+        </p>
+    </div>
+</body>
+</html>                                  
