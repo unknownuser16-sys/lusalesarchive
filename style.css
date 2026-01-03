@@ -1,10 +1,10 @@
 body {
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    background-color: red !important;
+    font-family: Georgia, "Times New Roman", serif;
+    background-color: #fdfdfd;
     color: #111;
-    max-width: 800px
+    max-width: 800px;
     margin: 60px auto;
-    line-height: 1.7; 
+    line-height: 1.7;
 }
 
 nav {
@@ -15,7 +15,11 @@ nav a {
     margin-right: 15px;
     text-decoration: none;
     color: #003366;
-    front-weight: bold;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
 }
 
 h1 {
@@ -27,9 +31,8 @@ p {
     font-size: 1.05em;
 }
 
-.archive-not {
+.archive-note {
     font-style: italic;
     color: #444;
     margin-top: 30px;
-
 }
