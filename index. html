@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html 1ang="en">
 <head>
-     <title>Lusale's Archive</title>
      <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -29,4 +28,5 @@
     <a href="books.html"><strong>Start reading the books </strong></a>  
      
 </body>
+
 </html>
