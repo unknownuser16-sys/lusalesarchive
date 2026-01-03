@@ -7,26 +7,29 @@
 </head>
 <body>
 
-<!-- Navigation Bar -->
-<nav>
-    <a herf="index.html">Home</a> |
-    <a href="books.html">Books</a> |
-    <a href="about.html">About</a> |
-    <a href="contact.html">Content</a> |
-</nav>
-<hr>
+  <nav>
+    <a herf="index.html">Home<a/> |
+    <a href="books.html">Books<a/> |
+    <a href="about,html">About<a/> |
+    <a href="Content.html">Content<a/> 
+  </nav>
 
-<!-- Main Content -->
-<div class="container">
-     <h1>Lusales's Archive</h1>
-     <p>
-         A private archive of books, idaes and unfinished thoughts. <br>
-         Preserving stories and philosophy, one work at a time.
-     </p>
-     <p>
-         <a href="books.html">Start reading the books 'n </a>
-     </p>
-</div>
+  <hr>
 
+  <h1>Lusale's Archive</h1>
+
+  <p><em>
+     A private archive of books, ideas and unfinished throughts.<b>
+     Preserving stories and philosophy one work at a time.
+  </em></p>
+
+  <p>
+    This archive exists to house written works complete and incomplete-
+    without noise, without algorthms, without urgency
+  </p>
+
+  <p>
+    <a href="books.html"><strong>Start reading the books </strong></a>  
+     
 </body>
 </html>
