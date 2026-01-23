@@ -1,0 +1,14 @@
+lusalesArchive/
+    index.html
+    admin/
+         index.html
+         admin.js
+    css/
+        style.css
+        admin.css
+    js/
+        main.js
+    books/
+        (books will go here)
+    assets/
+        (images, icons, etc.)
