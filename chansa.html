@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Chansa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d0b0e;
+  --bg2: #13101a;
+  --surface: rgba(255,255,255,0.04);
+  --surface-border: rgba(255,255,255,0.08);
+  --gold: #c9a96e;
+  --gold-light: #e8d5b0;
+  --rose: #d4688a;
+  --text: #f0eae0;
+  --text-muted: #8a7f72;
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'Inter', sans-serif;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.0, 0, 0.2, 1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* CANVAS */
+#particle-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* LOADING */
+#loading {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.8s var(--ease), visibility 0.8s;
+}
+#loading.hidden { opacity: 0; visibility: hidden; }
+.loader-ring {
+  width: 48px; height: 48px;
+  border: 1px solid rgba(201,169,110,0.15);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* MUSIC BUTTON */
+#music-btn {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  z-index: 900;
+  opacity: 0;
+  transition: opacity 0.6s, transform 0.2s, background 0.2s;
+}
+#music-btn.visible { opacity: 1; }
+#music-btn:hover { background: rgba(255,255,255,0.09); transform: scale(1.05); }
+#music-btn svg { width: 16px; height: 16px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+
+/* PROGRESS */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--rose), var(--gold));
+  z-index: 800;
+  transition: width 0.6s var(--ease);
+  width: 0%;
+}
+
+/* CHAPTER SYSTEM */
+.chapter {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  transform: translateY(20px);
+}
+.chapter.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+.chapter.exit {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+}
+
+/* INTRO / NEEDLE CANVAS */
+#intro-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+#ch0 { z-index: 20; }
+
+/* COMMON ELEMENTS */
+.chapter-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+}
+
+h1, h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.2;
+}
+h1 { font-size: clamp(2.2rem, 6vw, 4.5rem); }
+h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
+
+.subtitle {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 16px;
+  line-height: 1.7;
+  max-width: 480px;
+}
+
+.body-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  font-weight: 300;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.9;
+  max-width: 560px;
+}
+
+/* BUTTON */
+.btn {
+  margin-top: 52px;
+  padding: 14px 44px;
+  background: transparent;
+  border: 1px solid rgba(201,169,110,0.4);
+  color: var(--gold-light);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.3s, border-color 0.3s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(201,169,110,0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.btn:hover { border-color: rgba(201,169,110,0.8); transform: translateY(-1px); }
+.btn:hover::after { opacity: 1; }
+.btn:active { transform: translateY(0); }
+.btn.hidden-init { opacity: 0; pointer-events: none; transition: opacity 0.8s var(--ease); }
+.btn.revealed { opacity: 1; pointer-events: all; }
+
+/* GLASS CARD */
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 40px 48px;
+  max-width: 640px;
+  width: 100%;
+}
+
+/* TEXTAREA */
+.memory-input {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 300;
+  padding: 16px 20px;
+  resize: none;
+  outline: none;
+  margin-top: 16px;
+  transition: border-color 0.3s;
+  line-height: 1.7;
+  min-height: 100px;
+}
+.memory-input:focus { border-color: rgba(201,169,110,0.4); }
+.memory-input::placeholder { color: var(--text-muted); font-style: italic; }
+
+/* QUESTION */
+.question-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--gold-light);
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 4px;
+}
+
+/* CHOICE BUTTONS */
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 24px;
+  width: 100%;
+}
+.choice-btn {
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-align: center;
+}
+.choice-btn:hover, .choice-btn.selected {
+  background: rgba(201,169,110,0.1);
+  border-color: rgba(201,169,110,0.4);
+  color: var(--gold-light);
+}
+
+/* PROGRESS DOTS */
+.progress-dots {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 36px;
+}
+.progress-dots span {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  transition: all 0.4s;
+}
+.progress-dots span.done { background: var(--gold); }
+.progress-dots span.current { background: var(--rose); transform: scale(1.3); }
+
+/* DIVIDER */
+.divider {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 24px auto;
+}
+
+/* CHAPTER 5 philosophical */
+.phil-line {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.8vw, 1.6rem);
+  font-weight: 300;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.8;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+.phil-line.shown { opacity: 1; transform: translateY(0); }
+
+/* REVEAL PHOTO */
+#photo-container {
+  position: relative;
+  max-width: 380px;
+  width: 100%;
+  aspect-ratio: 3/4;
+  margin: 0 auto;
+}
+#photo-frame {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 2s var(--ease);
+  filter: sepia(0.15) brightness(0.9);
+}
+#photo-frame.revealed { opacity: 1; }
+.photo-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(201,169,110,0.06), rgba(212,104,138,0.06));
+  border: 1px solid var(--surface-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease);
+}
+.photo-placeholder.shown { opacity: 1; }
+.photo-placeholder p {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 0 24px;
+}
+.photo-caption {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 20px;
+  opacity: 0;
+  transition: opacity 1.5s 1s var(--ease);
+}
+.photo-caption.shown { opacity: 1; }
+
+/* HEART ANIMATION */
+#heart-svg {
+  opacity: 0;
+  transition: opacity 1s;
+}
+#heart-svg.shown { opacity: 1; }
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+#heart-svg.pulse { animation: heartbeat 2.5s ease-in-out infinite; }
+
+/* ENDING */
+.ending-message {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 3vw, 1.8rem);
+  font-weight: 300;
+  font-style: italic;
+  text-align: center;
+  color: var(--text);
+  line-height: 1.7;
+  max-width: 520px;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease);
+}
+.ending-message.shown { opacity: 1; }
+
+/* GLOW ORBS */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  animation: orb-drift 18s ease-in-out infinite alternate;
+}
+.orb-1 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(212,104,138,0.06) 0%, transparent 70%);
+  top: -100px; left: -100px;
+  animation-delay: 0s;
+}
+.orb-2 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(201,169,110,0.05) 0%, transparent 70%);
+  bottom: -150px; right: -100px;
+  animation-delay: -8s;
+}
+.orb-3 {
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, rgba(160,120,200,0.04) 0%, transparent 70%);
+  top: 40%; left: 40%;
+  animation-delay: -14s;
+}
+@keyframes orb-drift {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(30px, 40px) scale(1.1); }
+}
+
+/* SCROLL WITHIN chapter */
+.chapter-inner {
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201,169,110,0.2) transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* STITCH NEEDLE */
+#needle-wrap {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .glass-card { padding: 28px 24px; }
+  .choice-grid { grid-template-columns: 1fr; }
+  .btn { padding: 13px 32px; }
+  #music-btn { bottom: 20px; right: 20px; }
+}
+
+/* UTILITY */
+.mt-sm { margin-top: 20px; }
+.mt-md { margin-top: 36px; }
+.gold { color: var(--gold); }
+.rose { color: var(--rose); }
+.fade-in { animation: fadeIn 0.8s var(--ease) both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* TYPEWRITER cursor */
+.cursor-blink {
+  display: inline-block;
+  width: 2px; height: 1em;
+  background: var(--gold);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Save indicator */
+.save-indicator {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 6px;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.save-indicator.show { opacity: 1; }
+
+/* Photo add instruction */
+.photo-instruction {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 8px;
+  letter-spacing: 0.1em;
+}
+</style>
+</head>
+<body>
+
+<!-- Ambient orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- Particle canvas -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- Progress bar -->
+<div id="progress-bar"></div>
+
+<!-- Loading -->
+<div id="loading"><div class="loader-ring"></div></div>
+
+<!-- Music -->
+<audio id="bg-music" loop preload="auto">
+  <source src="https://cdn.pixabay.com/download/audio/2022/08/02/audio_884fe92c21.mp3" type="audio/mpeg">
+</audio>
+<button id="music-btn" aria-label="Toggle music">
+  <svg id="music-icon-play" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+  <svg id="music-icon-pause" viewBox="0 0 24 24" style="display:none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+</button>
+
+<!-- ═══════════════════════════════ CHAPTER 0: INTRO (NEEDLE) -->
+<div class="chapter active" id="ch0">
+  <canvas id="intro-canvas"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;">
+    <button class="btn hidden-init" id="begin-btn" onclick="goTo(1)">Begin</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CHAPTER 1: WELCOME -->
+<div class="chapter" id="ch1">
+  <div class="progress-dots" id="dots-1"></div>
+  <div class="chapter-label">Chapter One</div>
+  <h1>Welcome</h1>
+  <div class="divider"></div>
+  <p class="subtitle">Before we begin, I wanted to take you somewhere<br>built from memories.</p>
+  <button class="btn" onclick="goTo(2)">Continue</button>
+</div>
+
+<!-- ═══════════════════════════════ CHAPTER 2: YEARS -->
+<div class="chapter" id="ch2">
+  <div class="progress-dots" id="dots-2"></div>
+  <div class="chapter-label">Chapter Two</div>
+  <h2>Let's see what six years<br>leaves behind.</h2>
+  <div class="divider"></div>
+  <p class="subtitle">Not a summary. Not a highlight reel.<br>Just the quiet things that stayed.</p>
+  <button class="btn" onclick="goTo(3)">I'm ready</button>
+</div>
+
+<!-- ═══════════════════════════════ CHAPTER 3: MEMORY QUESTIONS -->
+<div class="chapter" id="ch3">
+  <div class="progress-dots" id="dots-3"></div>
+  <div class="chapter-label">Chapter Three &middot; Memories</div>
+  <div class="glass-card" style="max-width:580px;">
+    <div id="memory-q-wrap"></div>
+    <div class="save-indicator" id="save-ind">Saved quietly ✓</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:28px;">
+      <span style="font-size:12px;color:var(--text-muted);" id="mem-counter"></span>
+      <button class="btn" style="margin-top:0;" id="mem-next-btn" onclick="nextMemoryQ()">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CHAPTER 4: PLAYFUL -->
+<div class="chapter" id="ch4">
+  <div class="progress-dots" id="dots-4"></div>
+  <div class="chapter-label">Chapter Four &middot; Be Honest</div>
+  <div class="glass-card" style="max-width:560px;">
+    <div id="playful-q-wrap"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:28px;">
+      <button class="btn" style="margin-top:0;" id="play-next-btn" onclick="nextPlayfulQ()">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CHAPTER 5: PHILOSOPHICAL -->
+<div class="chapter" id="ch5">
+  <div class="progress-dots" id="dots-5"></div>
+  <div class="chapter-label">Chapter Five</div>
+  <div style="max-width:520px;text-align:center;">
+    <div class="phil-line" id="pl1">"People often think memories disappear."</div>
+    <div class="divider" style="opacity:0;transition:opacity 0.8s 1.8s;margin:28px auto;" id="pl-div"></div>
+    <div class="phil-line" id="pl2" style="transition-delay:2s;">I don't think they do.</div>
+    <div class="phil-line" id="pl3" style="transition-delay:3.4s;font-style:italic;color:var(--text-muted);font-size:clamp(0.95rem,2.2vw,1.3rem);">I think they quietly become<br>part of who we are.</div>
+  </div>
+  <button class="btn" id="phil-btn" style="opacity:0;transition:opacity 0.8s 5s;pointer-events:none;" onclick="goTo(6)">One last thing</button>
+</div>
+
+<!-- ═══════════════════════════════ CHAPTER 6: REVEAL -->
+<div class="chapter" id="ch6">
+  <div class="progress-dots" id="dots-6"></div>
+  <div class="chapter-label">Chapter Six</div>
+  <h1 style="margin-bottom:40px;">One Last Thing</h1>
+  <div id="photo-container">
+    <!-- DROP YOUR PHOTO HERE: replace the photo-placeholder div with an <img> tag -->
+    <!-- <img id="photo-frame" src="your-photo.jpg" alt="A memory"> -->
+    <div class="photo-placeholder" id="photo-ph">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(201,169,110,0.4)" stroke-width="1">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/>
+      </svg>
+      <p>Add your photo here<br><span style="font-size:10px;opacity:0.6;">Replace the placeholder in the HTML</span></p>
+    </div>
+  </div>
+  <p class="photo-caption" id="photo-cap">I thought this deserved one more place to exist.</p>
+  <button class="btn" id="reveal-continue" style="opacity:0;pointer-events:none;transition:opacity 0.8s 3s;" onclick="goTo(7)">Thank you</button>
+</div>
+
+<!-- ═══════════════════════════════ CHAPTER 7: ENDING -->
+<div class="chapter" id="ch7">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:32px;">
+    <svg id="heart-svg" width="56" height="52" viewBox="0 0 56 52" fill="none">
+      <path id="heart-path" d="M28 48 C28 48 4 32 4 16 C4 8.27 10.27 2 18 2 C22.4 2 26.33 4.08 28 7.31 C29.67 4.08 33.6 2 38 2 C45.73 2 52 8.27 52 16 C52 32 28 48 28 48Z"
+        stroke="var(--rose)" stroke-width="1.2" fill="none" stroke-dasharray="200" stroke-dashoffset="200"/>
+    </svg>
+    <p class="ending-message" id="ending-msg">Thank you for walking through<br>these memories with me.</p>
+    <p class="ending-message" id="ending-msg2" style="transition-delay:0.6s;font-size:clamp(0.9rem,2vw,1.2rem);color:var(--text-muted);">Every moment with you has mattered more<br>than words have ever managed to say.</p>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let currentChapter = 0;
+const TOTAL_CHAPTERS = 8;
+let memQIndex = 0;
+let playQIndex = 0;
+let musicStarted = false;
+let musicPlaying = false;
+
+const memoryQuestions = [
+  { q: "What's the first thing you remember about us?", key: "mem_1" },
+  { q: "Which moment of ours still makes you smile?", key: "mem_2" },
+  { q: "If you could relive one conversation, which one would it be?", key: "mem_3" },
+  { q: "Which memory do you think I still think about?", key: "mem_4" },
+  { q: "What do you think made our friendship special?", key: "mem_5" },
+];
+
+const playfulQuestions = [
+  { q: "Who was more stubborn?", key: "pl_1", opts: ["You, obviously", "You, but you'd never admit it", "Equal chaos", "Me... sometimes"] },
+  { q: "Who texted first most often?", key: "pl_2", opts: ["You did", "I did", "It was always you", "We both pretended not to"] },
+  { q: "Who's funnier?", key: "pl_3", opts: ["Me, clearly", "You, but don't tell you", "We're both terrible", "This is a trap"] },
+  { q: "Who took longer to reply?", key: "pl_4", opts: ["You, hours later", "Me, but I was thinking", "Both of us, artfully", "Neither, we were always there"] },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   PARTICLES
+═══════════════════════════════════════════════════════════ */
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let particleSlowdown = 1;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+  constructor() { this.reset(true); }
+  reset(init) {
+    this.x = Math.random() * canvas.width;
+    this.y = init ? Math.random() * canvas.height : canvas.height + 10;
+    this.size = Math.random() * 1.2 + 0.3;
+    this.speedX = (Math.random() - 0.5) * 0.25;
+    this.speedY = -(Math.random() * 0.4 + 0.1);
+    this.opacity = Math.random() * 0.35 + 0.05;
+    this.life = Math.random() * 200 + 100;
+    this.age = init ? Math.random() * this.life : 0;
+  }
+  update() {
+    const slow = particleSlowdown;
+    this.x += this.speedX * slow;
+    this.y += this.speedY * slow;
+    this.age += slow;
+    if (this.age > this.life || this.y < -10) this.reset(false);
+  }
+  draw() {
+    const progress = this.age / this.life;
+    const fade = Math.sin(progress * Math.PI);
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(201, 169, 110, ${this.opacity * fade})`;
+    ctx.fill();
+  }
+}
+
+for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+/* ═══════════════════════════════════════════════════════════
+   NEEDLE / STITCH ANIMATION
+═══════════════════════════════════════════════════════════ */
+const ic = document.getElementById('intro-canvas');
+const ictx = ic.getContext('2d');
+
+function sizeIntroCanvas() {
+  ic.width = window.innerWidth;
+  ic.height = window.innerHeight;
+}
+sizeIntroCanvas();
+window.addEventListener('resize', sizeIntroCanvas);
+
+const STITCH_TEXT = "Welcome, Chansa";
+let stitchDone = false;
+
+function runNeedleAnimation() {
+  const W = ic.width, H = ic.height;
+  const cx = W / 2, cy = H / 2 - 20;
+
+  const fontSize = Math.min(Math.max(W * 0.055, 28), 68);
+  ictx.font = `300 ${fontSize}px 'Cormorant Garamond', serif`;
+  ictx.fillStyle = 'transparent';
+
+  // measure
+  const metrics = ictx.measureText(STITCH_TEXT);
+  const tw = metrics.width;
+  const startX = cx - tw / 2;
+  const startY = cy;
+
+  // Build character path points
+  const points = [];
+  let charX = startX;
+  for (let i = 0; i < STITCH_TEXT.length; i++) {
+    const ch = STITCH_TEXT[i];
+    points.push({ x: charX, y: startY, ch, idx: i });
+    charX += ictx.measureText(ch).width;
+  }
+
+  // Thread path (smooth horizontal with slight wave)
+  const totalW = tw;
+  let progress = 0;
+  const speed = 0.0045;
+  let heartPhase = 0;
+  let heartDone = false;
+  let showBegin = false;
+
+  const threadPts = [];
+  const NEEDLE_LEN = 18;
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function draw() {
+    ictx.clearRect(0, 0, W, H);
+
+    // Draw stitched text so far
+    const drawnCount = Math.floor(progress * STITCH_TEXT.length);
+    for (let i = 0; i < drawnCount; i++) {
+      const t = i / STITCH_TEXT.length;
+      const alpha = Math.min(1, (progress * STITCH_TEXT.length - i) * 2);
+      ictx.globalAlpha = alpha;
+      ictx.fillStyle = `#e8d5b0`;
+      ictx.font = `300 ${fontSize}px 'Cormorant Garamond', serif`;
+      ictx.fillText(points[i].ch, points[i].x, points[i].y);
+    }
+    ictx.globalAlpha = 1;
+
+    // Thread trail
+    if (threadPts.length > 1) {
+      ictx.beginPath();
+      ictx.moveTo(threadPts[0].x, threadPts[0].y);
+      for (let i = 1; i < threadPts.length; i++) {
+        ictx.lineTo(threadPts[i].x, threadPts[i].y);
+      }
+      ictx.strokeStyle = `rgba(201, 169, 110, 0.5)`;
+      ictx.lineWidth = 0.8;
+      ictx.stroke();
+    }
+
+    if (!heartDone) {
+      // Needle position
+      const pct = Math.min(progress, 0.999);
+      const nx = startX + totalW * pct;
+      const ny = startY + Math.sin(pct * Math.PI * 16) * 2.5;
+
+      threadPts.push({ x: nx, y: ny });
+      if (threadPts.length > 600) threadPts.shift();
+
+      // Draw needle
+      const angle = Math.atan2(
+        ny - (threadPts.length > 2 ? threadPts[threadPts.length - 3].y : ny),
+        nx - (threadPts.length > 2 ? threadPts[threadPts.length - 3].x : nx - 1)
+      );
+      ictx.save();
+      ictx.translate(nx, ny);
+      ictx.rotate(angle);
+      // needle body
+      ictx.beginPath();
+      ictx.moveTo(-NEEDLE_LEN, 0);
+      ictx.lineTo(NEEDLE_LEN, 0);
+      ictx.strokeStyle = '#c9a96e';
+      ictx.lineWidth = 1.4;
+      ictx.stroke();
+      // needle tip
+      ictx.beginPath();
+      ictx.moveTo(NEEDLE_LEN, 0);
+      ictx.lineTo(NEEDLE_LEN - 5, -2);
+      ictx.moveTo(NEEDLE_LEN, 0);
+      ictx.lineTo(NEEDLE_LEN - 5, 2);
+      ictx.strokeStyle = '#e8d5b0';
+      ictx.lineWidth = 1;
+      ictx.stroke();
+      // needle eye
+      ictx.beginPath();
+      ictx.ellipse(-NEEDLE_LEN + 4, 0, 2.5, 1.2, 0, 0, Math.PI * 2);
+      ictx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ictx.lineWidth = 0.8;
+      ictx.stroke();
+      ictx.restore();
+
+      progress += speed;
+
+      if (progress >= 1) {
+        heartPhase = 0;
+        threadPts.length = 0;
+        heartDone = false;
+        drawHeart();
+        return;
+      }
+      requestAnimationFrame(draw);
+    }
+  }
+
+  function drawHeart() {
+    const endX = startX + totalW;
+    const hcx = endX + 40;
+    const hcy = startY - 8;
+    const HR = 10;
+
+    function heartX(t) { return hcx + HR * 16 * Math.pow(Math.sin(t), 3) / 16; }
+    function heartY(t) { return hcy - HR * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) / 16; }
+
+    const STEPS = 80;
+    const hpts = [];
+    for (let i = 0; i <= STEPS; i++) {
+      const t = (i / STEPS) * Math.PI * 2;
+      hpts.push({ x: heartX(t), y: heartY(t) });
+    }
+
+    let hp = 0;
+    const hspeed = 0.022;
+    const drawnHPts = [];
+
+    function animHeart() {
+      ictx.clearRect(0, 0, W, H);
+
+      // redraw text
+      ictx.font = `300 ${fontSize}px 'Cormorant Garamond', serif`;
+      for (let i = 0; i < STITCH_TEXT.length; i++) {
+        ictx.fillStyle = '#e8d5b0';
+        ictx.fillText(points[i].ch, points[i].x, points[i].y);
+      }
+
+      // thread to heart
+      if (drawnHPts.length > 1) {
+        ictx.beginPath();
+        ictx.moveTo(endX, startY);
+        for (const p of drawnHPts) ictx.lineTo(p.x, p.y);
+        ictx.strokeStyle = 'rgba(212, 104, 138, 0.6)';
+        ictx.lineWidth = 0.9;
+        ictx.stroke();
+      }
+
+      const idx = Math.floor(hp * STEPS);
+      drawnHPts.push(hpts[Math.min(idx, STEPS)]);
+      hp += hspeed;
+
+      if (hp >= 1) {
+        // fade out heart, show begin
+        let fadeOut = 1;
+        function fadeHeart() {
+          ictx.clearRect(0, 0, W, H);
+          ictx.globalAlpha = fadeOut;
+          ictx.font = `300 ${fontSize}px 'Cormorant Garamond', serif`;
+          for (let i = 0; i < STITCH_TEXT.length; i++) {
+            ictx.fillStyle = '#e8d5b0';
+            ictx.fillText(points[i].ch, points[i].x, points[i].y);
+          }
+          if (drawnHPts.length > 1) {
+            ictx.beginPath();
+            ictx.moveTo(endX, startY);
+            for (const p of drawnHPts) ictx.lineTo(p.x, p.y);
+            ictx.strokeStyle = `rgba(212, 104, 138, ${0.6 * fadeOut})`;
+            ictx.lineWidth = 0.9;
+            ictx.stroke();
+          }
+          ictx.globalAlpha = 1;
+          fadeOut -= 0.012;
+          if (fadeOut > 0) {
+            requestAnimationFrame(fadeHeart);
+          } else {
+            ictx.clearRect(0, 0, W, H);
+            // keep text
+            ictx.globalAlpha = 1;
+            ictx.font = `300 ${fontSize}px 'Cormorant Garamond', serif`;
+            for (let i = 0; i < STITCH_TEXT.length; i++) {
+              ictx.fillStyle = '#e8d5b0';
+              ictx.fillText(points[i].ch, points[i].x, points[i].y);
+            }
+            document.getElementById('begin-btn').classList.add('revealed');
+          }
+        }
+        setTimeout(fadeHeart, 400);
+        return;
+      }
+      requestAnimationFrame(animHeart);
+    }
+    animHeart();
+  }
+
+  draw();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHAPTER NAVIGATION
+═══════════════════════════════════════════════════════════ */
+function goTo(n) {
+  const prev = document.getElementById('ch' + currentChapter);
+  const next = document.getElementById('ch' + n);
+  if (!next) return;
+
+  prev.classList.add('exit');
+  setTimeout(() => {
+    prev.classList.remove('active', 'exit');
+  }, 650);
+
+  setTimeout(() => {
+    next.classList.add('active');
+    currentChapter = n;
+    updateProgress();
+    onChapterEnter(n);
+  }, 300);
+}
+
+function updateProgress() {
+  const pct = (currentChapter / (TOTAL_CHAPTERS - 1)) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  renderDots();
+}
+
+function renderDots() {
+  for (let ch = 1; ch <= 7; ch++) {
+    const el = document.getElementById('dots-' + ch);
+    if (!el) continue;
+    el.innerHTML = '';
+    for (let i = 1; i <= 7; i++) {
+      const s = document.createElement('span');
+      if (i < ch) s.classList.add('done');
+      else if (i === ch) s.classList.add('current');
+      el.appendChild(s);
+    }
+  }
+}
+
+function onChapterEnter(n) {
+  if (n === 1) {
+    // nothing special
+  }
+  if (n === 3) {
+    memQIndex = 0;
+    renderMemoryQ();
+  }
+  if (n === 4) {
+    playQIndex = 0;
+    renderPlayfulQ();
+  }
+  if (n === 5) {
+    triggerPhilosophical();
+  }
+  if (n === 6) {
+    triggerReveal();
+  }
+  if (n === 7) {
+    triggerEnding();
+    particleSlowdown = 0.3;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHAPTER 3 — MEMORY QUESTIONS
+═══════════════════════════════════════════════════════════ */
+function renderMemoryQ() {
+  if (memQIndex >= memoryQuestions.length) {
+    goTo(4);
+    return;
+  }
+  const q = memoryQuestions[memQIndex];
+  const saved = localStorage.getItem(q.key) || '';
+  const wrap = document.getElementById('memory-q-wrap');
+  wrap.innerHTML = `
+    <p class="question-text">${q.q}</p>
+    <textarea class="memory-input" id="mem-ta" placeholder="Take your time..." rows="4">${saved}</textarea>
+  `;
+  document.getElementById('mem-counter').textContent = `${memQIndex + 1} / ${memoryQuestions.length}`;
+
+  const ta = document.getElementById('mem-ta');
+  ta.addEventListener('input', () => {
+    localStorage.setItem(q.key, ta.value);
+    const ind = document.getElementById('save-ind');
+    ind.classList.add('show');
+    clearTimeout(ta._saveT);
+    ta._saveT = setTimeout(() => ind.classList.remove('show'), 1800);
+  });
+
+  const btn = document.getElementById('mem-next-btn');
+  btn.textContent = memQIndex === memoryQuestions.length - 1 ? 'Continue →' : 'Next';
+}
+
+function nextMemoryQ() {
+  memQIndex++;
+  const wrap = document.getElementById('memory-q-wrap');
+  wrap.style.opacity = '0';
+  wrap.style.transform = 'translateY(-10px)';
+  wrap.style.transition = 'opacity 0.3s, transform 0.3s';
+  setTimeout(() => {
+    wrap.style.opacity = '1';
+    wrap.style.transform = 'none';
+    renderMemoryQ();
+  }, 320);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHAPTER 4 — PLAYFUL QUESTIONS
+═══════════════════════════════════════════════════════════ */
+function renderPlayfulQ() {
+  if (playQIndex >= playfulQuestions.length) {
+    goTo(5);
+    return;
+  }
+  const q = playfulQuestions[playQIndex];
+  const saved = localStorage.getItem(q.key) || '';
+  const wrap = document.getElementById('playful-q-wrap');
+  wrap.innerHTML = `
+    <p class="question-text">${q.q}</p>
+    <div class="choice-grid">
+      ${q.opts.map((opt, i) => `
+        <button class="choice-btn${saved === opt ? ' selected' : ''}" onclick="selectChoice('${q.key}', '${opt.replace(/'/g,"\\'")}', this)">${opt}</button>
+      `).join('')}
+    </div>
+  `;
+  const btn = document.getElementById('play-next-btn');
+  btn.textContent = playQIndex === playfulQuestions.length - 1 ? 'Continue →' : 'Next';
+}
+
+function selectChoice(key, val, el) {
+  localStorage.setItem(key, val);
+  document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  el.style.transform = 'scale(0.97)';
+  setTimeout(() => el.style.transform = '', 150);
+}
+
+function nextPlayfulQ() {
+  playQIndex++;
+  const wrap = document.getElementById('playful-q-wrap');
+  wrap.style.opacity = '0';
+  wrap.style.transition = 'opacity 0.3s';
+  setTimeout(() => {
+    wrap.style.opacity = '1';
+    renderPlayfulQ();
+  }, 320);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHAPTER 5 — PHILOSOPHICAL
+═══════════════════════════════════════════════════════════ */
+function triggerPhilosophical() {
+  const lines = ['pl1','pl2','pl3'];
+  const delays = [200, 2000, 3400];
+  lines.forEach((id, i) => {
+    setTimeout(() => document.getElementById(id).classList.add('shown'), delays[i]);
+  });
+  setTimeout(() => {
+    document.getElementById('pl-div').style.opacity = '1';
+  }, 1800);
+  setTimeout(() => {
+    const btn = document.getElementById('phil-btn');
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'all';
+  }, 5200);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHAPTER 6 — REVEAL
+═══════════════════════════════════════════════════════════ */
+function triggerReveal() {
+  particleSlowdown = 0.4;
+  setTimeout(() => {
+    document.getElementById('photo-ph').classList.add('shown');
+    setTimeout(() => {
+      document.getElementById('photo-cap').classList.add('shown');
+      const btn = document.getElementById('reveal-continue');
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'all';
+      // lower music slightly
+      if (musicStarted) {
+        const aud = document.getElementById('bg-music');
+        const origVol = aud.volume;
+        aud.volume = Math.max(0.1, origVol * 0.5);
+        setTimeout(() => { aud.volume = origVol; }, 8000);
+      }
+    }, 1200);
+    particleSlowdown = 1;
+  }, 600);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHAPTER 7 — ENDING
+═══════════════════════════════════════════════════════════ */
+function triggerEnding() {
+  // Animate heart path
+  const path = document.getElementById('heart-path');
+  path.style.transition = 'stroke-dashoffset 2s ease-in-out';
+  setTimeout(() => {
+    path.style.strokeDashoffset = '0';
+  }, 100);
+
+  const hsvg = document.getElementById('heart-svg');
+  hsvg.classList.add('shown');
+  setTimeout(() => hsvg.classList.add('pulse'), 2200);
+
+  setTimeout(() => document.getElementById('ending-msg').classList.add('shown'), 800);
+  setTimeout(() => document.getElementById('ending-msg2').classList.add('shown'), 1600);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MUSIC
+═══════════════════════════════════════════════════════════ */
+const audio = document.getElementById('bg-music');
+
+function startMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+  audio.volume = 0;
+  audio.play().then(() => {
+    musicPlaying = true;
+    let vol = 0;
+    const fade = setInterval(() => {
+      vol = Math.min(0.45, vol + 0.015);
+      audio.volume = vol;
+      if (vol >= 0.45) clearInterval(fade);
+    }, 80);
+    updateMusicBtn();
+    document.getElementById('music-btn').classList.add('visible');
+  }).catch(() => {});
+}
+
+function toggleMusic() {
+  if (!musicStarted) return;
+  if (musicPlaying) {
+    audio.pause();
+    musicPlaying = false;
+  } else {
+    audio.play();
+    musicPlaying = true;
+  }
+  updateMusicBtn();
+}
+
+function updateMusicBtn() {
+  document.getElementById('music-icon-play').style.display = musicPlaying ? 'none' : 'block';
+  document.getElementById('music-icon-pause').style.display = musicPlaying ? 'block' : 'none';
+}
+
+document.getElementById('music-btn').addEventListener('click', toggleMusic);
+
+/* ═══════════════════════════════════════════════════════════
+   BEGIN BUTTON
+═══════════════════════════════════════════════════════════ */
+document.getElementById('begin-btn').addEventListener('click', () => {
+  startMusic();
+  goTo(1);
+});
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loading').classList.add('hidden');
+    setTimeout(() => runNeedleAnimation(), 600);
+  }, 900);
+});
+</script>
+</body>
+</html>
