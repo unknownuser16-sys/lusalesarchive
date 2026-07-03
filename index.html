@@ -6,21 +6,23 @@
 <title>For Chansa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&family=Pinyon+Script&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0d0b0e;
-  --bg2: #13101a;
+  --bg: #000000;
+  --bg2: #0a0a0a;
   --surface: rgba(255,255,255,0.04);
-  --surface-border: rgba(255,255,255,0.08);
-  --gold: #c9a96e;
-  --gold-light: #e8d5b0;
-  --rose: #d4688a;
-  --text: #f0eae0;
-  --text-muted: #8a7f72;
-  --font-display: 'Cormorant Garamond', serif;
+  --surface-border: rgba(255,255,255,0.1);
+  --gold: #d4a853;
+  --gold-light: #f0d898;
+  --rose: #e06b8e;
+  --text: #ffffff;
+  --text-muted: #888888;
+  --font-display: 'Playfair Display', serif;
+  --font-script: 'Pinyon Script', cursive;
+  --font-classic: 'Cormorant Garamond', serif;
   --font-body: 'Inter', sans-serif;
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.0, 0, 0.2, 1);
@@ -50,7 +52,7 @@ body {
 #loading {
   position: fixed;
   inset: 0;
-  background: var(--bg);
+  background: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -136,38 +138,58 @@ body {
 /* COMMON ELEMENTS */
 .chapter-label {
   font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.25em;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: rgba(255,255,255,0.35);
   margin-bottom: 40px;
 }
 
 h1, h2 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 700;
   color: var(--text);
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
 }
-h1 { font-size: clamp(2.2rem, 6vw, 4.5rem); }
-h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
+h1 { font-size: clamp(2.6rem, 7vw, 5.5rem); }
+h2 { font-size: clamp(1.8rem, 4.5vw, 3.6rem); }
+
+/* Script accent for welcome */
+.script-accent {
+  display: block;
+  font-family: var(--font-script);
+  font-size: clamp(1.4rem, 4vw, 2.4rem);
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+  opacity: 0.9;
+}
+
+/* Italic serif for chapter subtitles */
+.italic-serif {
+  font-family: var(--font-classic);
+  font-style: italic;
+  font-weight: 300;
+}
 
 .subtitle {
-  font-family: var(--font-display);
-  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-family: var(--font-classic);
+  font-size: clamp(1.05rem, 2.5vw, 1.45rem);
   font-weight: 300;
   font-style: italic;
-  color: var(--text-muted);
+  color: rgba(255,255,255,0.6);
   text-align: center;
-  margin-top: 16px;
-  line-height: 1.7;
+  margin-top: 20px;
+  line-height: 1.8;
   max-width: 480px;
 }
 
 .body-text {
-  font-family: var(--font-display);
+  font-family: var(--font-classic);
   font-size: clamp(1.05rem, 2.2vw, 1.35rem);
   font-weight: 300;
   color: var(--text);
@@ -179,18 +201,18 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
 /* BUTTON */
 .btn {
   margin-top: 52px;
-  padding: 14px 44px;
+  padding: 15px 48px;
   background: transparent;
-  border: 1px solid rgba(201,169,110,0.4);
+  border: 1px solid rgba(212,168,83,0.5);
   color: var(--gold-light);
   font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.2em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: 2px;
-  transition: background 0.3s, border-color 0.3s, transform 0.2s;
+  border-radius: 1px;
+  transition: background 0.35s, border-color 0.35s, color 0.35s, transform 0.2s, box-shadow 0.35s;
   position: relative;
   overflow: hidden;
 }
@@ -198,55 +220,64 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(201,169,110,0.08), transparent);
+  background: linear-gradient(135deg, rgba(212,168,83,0.12), transparent);
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.35s;
 }
-.btn:hover { border-color: rgba(201,169,110,0.8); transform: translateY(-1px); }
+.btn:hover {
+  border-color: rgba(212,168,83,0.9);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(212,168,83,0.12);
+}
 .btn:hover::after { opacity: 1; }
-.btn:active { transform: translateY(0); }
+.btn:active { transform: translateY(0); box-shadow: none; }
 .btn.hidden-init { opacity: 0; pointer-events: none; transition: opacity 0.8s var(--ease); }
 .btn.revealed { opacity: 1; pointer-events: all; }
 
 /* GLASS CARD */
 .glass-card {
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.09);
   backdrop-filter: blur(20px);
   border-radius: 16px;
   padding: 40px 48px;
   max-width: 640px;
   width: 100%;
+  box-shadow: 0 0 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 
 /* TEXTAREA */
 .memory-input {
   width: 100%;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 8px;
-  color: var(--text);
-  font-family: var(--font-display);
-  font-size: 1.05rem;
+  color: #ffffff;
+  font-family: var(--font-classic);
+  font-size: 1.1rem;
   font-weight: 300;
   padding: 16px 20px;
   resize: none;
   outline: none;
   margin-top: 16px;
-  transition: border-color 0.3s;
-  line-height: 1.7;
+  transition: border-color 0.3s, background 0.3s;
+  line-height: 1.8;
   min-height: 100px;
 }
-.memory-input:focus { border-color: rgba(201,169,110,0.4); }
-.memory-input::placeholder { color: var(--text-muted); font-style: italic; }
+.memory-input:focus {
+  border-color: rgba(212,168,83,0.5);
+  background: rgba(255,255,255,0.06);
+}
+.memory-input::placeholder { color: rgba(255,255,255,0.25); font-style: italic; }
 
 /* QUESTION */
 .question-text {
   font-family: var(--font-display);
   font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
-  color: var(--gold-light);
+  color: #ffffff;
   text-align: center;
   line-height: 1.6;
   margin-bottom: 4px;
@@ -262,11 +293,11 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
 }
 .choice-btn {
   padding: 16px 20px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 10px;
-  color: var(--text);
-  font-family: var(--font-display);
+  color: rgba(255,255,255,0.85);
+  font-family: var(--font-classic);
   font-size: 1rem;
   font-weight: 300;
   cursor: pointer;
@@ -274,9 +305,9 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
   text-align: center;
 }
 .choice-btn:hover, .choice-btn.selected {
-  background: rgba(201,169,110,0.1);
-  border-color: rgba(201,169,110,0.4);
-  color: var(--gold-light);
+  background: rgba(212,168,83,0.12);
+  border-color: rgba(212,168,83,0.5);
+  color: #ffffff;
 }
 
 /* PROGRESS DOTS */
@@ -305,9 +336,9 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
 /* CHAPTER 5 philosophical */
 .phil-line {
   font-family: var(--font-display);
-  font-size: clamp(1.1rem, 2.8vw, 1.6rem);
-  font-weight: 300;
-  color: var(--text);
+  font-size: clamp(1.1rem, 2.8vw, 1.7rem);
+  font-weight: 400;
+  color: #ffffff;
   text-align: center;
   line-height: 1.8;
   opacity: 0;
@@ -386,10 +417,10 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
 .ending-message {
   font-family: var(--font-display);
   font-size: clamp(1.1rem, 3vw, 1.8rem);
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   text-align: center;
-  color: var(--text);
+  color: #ffffff;
   line-height: 1.7;
   max-width: 520px;
   opacity: 0;
@@ -407,21 +438,21 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
   animation: orb-drift 18s ease-in-out infinite alternate;
 }
 .orb-1 {
-  width: 400px; height: 400px;
-  background: radial-gradient(circle, rgba(212,104,138,0.06) 0%, transparent 70%);
-  top: -100px; left: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(224,107,142,0.1) 0%, transparent 70%);
+  top: -150px; left: -120px;
   animation-delay: 0s;
 }
 .orb-2 {
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(201,169,110,0.05) 0%, transparent 70%);
-  bottom: -150px; right: -100px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(212,168,83,0.08) 0%, transparent 70%);
+  bottom: -200px; right: -120px;
   animation-delay: -8s;
 }
 .orb-3 {
-  width: 350px; height: 350px;
-  background: radial-gradient(circle, rgba(160,120,200,0.04) 0%, transparent 70%);
-  top: 40%; left: 40%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(140,100,220,0.07) 0%, transparent 70%);
+  top: 35%; left: 38%;
   animation-delay: -14s;
 }
 @keyframes orb-drift {
@@ -535,7 +566,10 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
 <div class="chapter" id="ch1">
   <div class="progress-dots" id="dots-1"></div>
   <div class="chapter-label">Chapter One</div>
-  <h1>Welcome</h1>
+  <div style="text-align:center;">
+    <span class="script-accent">a letter for you</span>
+    <h1>Welcome</h1>
+  </div>
   <div class="divider"></div>
   <p class="subtitle">Before we begin, I wanted to take you somewhere<br>built from memories.</p>
   <button class="btn" onclick="goTo(2)">Continue</button>
@@ -545,7 +579,10 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
 <div class="chapter" id="ch2">
   <div class="progress-dots" id="dots-2"></div>
   <div class="chapter-label">Chapter Two</div>
-  <h2>Let's see what six years<br>leaves behind.</h2>
+  <div style="text-align:center;">
+    <span class="script-accent">six years</span>
+    <h2>Let's see what time<br>leaves behind.</h2>
+  </div>
   <div class="divider"></div>
   <p class="subtitle">Not a summary. Not a highlight reel.<br>Just the quiet things that stayed.</p>
   <button class="btn" onclick="goTo(3)">I'm ready</button>
@@ -585,7 +622,7 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
     <div class="phil-line" id="pl1">"People often think memories disappear."</div>
     <div class="divider" style="opacity:0;transition:opacity 0.8s 1.8s;margin:28px auto;" id="pl-div"></div>
     <div class="phil-line" id="pl2" style="transition-delay:2s;">I don't think they do.</div>
-    <div class="phil-line" id="pl3" style="transition-delay:3.4s;font-style:italic;color:var(--text-muted);font-size:clamp(0.95rem,2.2vw,1.3rem);">I think they quietly become<br>part of who we are.</div>
+    <div class="phil-line" id="pl3" style="transition-delay:3.4s;font-style:italic;color:rgba(255,255,255,0.5);font-size:clamp(0.95rem,2.2vw,1.3rem);">I think they quietly become<br>part of who we are.</div>
   </div>
   <button class="btn" id="phil-btn" style="opacity:0;transition:opacity 0.8s 5s;pointer-events:none;" onclick="goTo(6)">One last thing</button>
 </div>
@@ -594,7 +631,10 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
 <div class="chapter" id="ch6">
   <div class="progress-dots" id="dots-6"></div>
   <div class="chapter-label">Chapter Six</div>
-  <h1 style="margin-bottom:40px;">One Last Thing</h1>
+  <div style="text-align:center;margin-bottom:40px;">
+    <span class="script-accent">and finally —</span>
+    <h1>One Last Thing</h1>
+  </div>
   <div id="photo-container">
     <!-- DROP YOUR PHOTO HERE: replace the photo-placeholder div with an <img> tag -->
     <!-- <img id="photo-frame" src="your-photo.jpg" alt="A memory"> -->
@@ -617,7 +657,7 @@ h2 { font-size: clamp(1.6rem, 4vw, 3rem); }
         stroke="var(--rose)" stroke-width="1.2" fill="none" stroke-dasharray="200" stroke-dashoffset="200"/>
     </svg>
     <p class="ending-message" id="ending-msg">Thank you for walking through<br>these memories with me.</p>
-    <p class="ending-message" id="ending-msg2" style="transition-delay:0.6s;font-size:clamp(0.9rem,2vw,1.2rem);color:var(--text-muted);">Every moment with you has mattered more<br>than words have ever managed to say.</p>
+    <p class="ending-message" id="ending-msg2" style="transition-delay:0.6s;font-size:clamp(0.9rem,2vw,1.2rem);color:rgba(255,255,255,0.45);">Every moment with you has mattered more<br>than words have ever managed to say.</p>
   </div>
 </div>
 
@@ -721,7 +761,7 @@ function runNeedleAnimation() {
   const cx = W / 2, cy = H / 2 - 20;
 
   const fontSize = Math.min(Math.max(W * 0.055, 28), 68);
-  ictx.font = `300 ${fontSize}px 'Cormorant Garamond', serif`;
+  ictx.font = `400 ${fontSize}px 'Playfair Display', serif`;
   ictx.fillStyle = 'transparent';
 
   // measure
@@ -761,8 +801,8 @@ function runNeedleAnimation() {
       const t = i / STITCH_TEXT.length;
       const alpha = Math.min(1, (progress * STITCH_TEXT.length - i) * 2);
       ictx.globalAlpha = alpha;
-      ictx.fillStyle = `#e8d5b0`;
-      ictx.font = `300 ${fontSize}px 'Cormorant Garamond', serif`;
+      ictx.fillStyle = `#ffffff`;
+      ictx.font = `400 ${fontSize}px 'Playfair Display', serif`;
       ictx.fillText(points[i].ch, points[i].x, points[i].y);
     }
     ictx.globalAlpha = 1;
@@ -809,7 +849,7 @@ function runNeedleAnimation() {
       ictx.lineTo(NEEDLE_LEN - 5, -2);
       ictx.moveTo(NEEDLE_LEN, 0);
       ictx.lineTo(NEEDLE_LEN - 5, 2);
-      ictx.strokeStyle = '#e8d5b0';
+      ictx.strokeStyle = '#f0f0f0';
       ictx.lineWidth = 1;
       ictx.stroke();
       // needle eye
@@ -857,9 +897,9 @@ function runNeedleAnimation() {
       ictx.clearRect(0, 0, W, H);
 
       // redraw text
-      ictx.font = `300 ${fontSize}px 'Cormorant Garamond', serif`;
+      ictx.font = `400 ${fontSize}px 'Playfair Display', serif`;
       for (let i = 0; i < STITCH_TEXT.length; i++) {
-        ictx.fillStyle = '#e8d5b0';
+        ictx.fillStyle = '#ffffff';
         ictx.fillText(points[i].ch, points[i].x, points[i].y);
       }
 
@@ -883,9 +923,9 @@ function runNeedleAnimation() {
         function fadeHeart() {
           ictx.clearRect(0, 0, W, H);
           ictx.globalAlpha = fadeOut;
-          ictx.font = `300 ${fontSize}px 'Cormorant Garamond', serif`;
+          ictx.font = `400 ${fontSize}px 'Playfair Display', serif`;
           for (let i = 0; i < STITCH_TEXT.length; i++) {
-            ictx.fillStyle = '#e8d5b0';
+            ictx.fillStyle = '#ffffff';
             ictx.fillText(points[i].ch, points[i].x, points[i].y);
           }
           if (drawnHPts.length > 1) {
@@ -904,9 +944,9 @@ function runNeedleAnimation() {
             ictx.clearRect(0, 0, W, H);
             // keep text
             ictx.globalAlpha = 1;
-            ictx.font = `300 ${fontSize}px 'Cormorant Garamond', serif`;
+            ictx.font = `400 ${fontSize}px 'Playfair Display', serif`;
             for (let i = 0; i < STITCH_TEXT.length; i++) {
-              ictx.fillStyle = '#e8d5b0';
+              ictx.fillStyle = '#ffffff';
               ictx.fillText(points[i].ch, points[i].x, points[i].y);
             }
             document.getElementById('begin-btn').classList.add('revealed');
